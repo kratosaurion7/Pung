@@ -128,7 +128,7 @@ namespace Pung
 
         public void IncrementSpeed()
         {
-            speed += DEFAULTSPEED * 0.2f;
+            speed += speed * 0.2f;
         }
 
         

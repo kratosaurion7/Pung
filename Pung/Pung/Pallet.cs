@@ -143,9 +143,14 @@ namespace Pung
             }
         }
 
+        public void IncrementSpeed()
+        {
+            speed += speed * 0.1f;
+        }
+
         public void DecrementSpeed()
         {
-            speed -= DEFAULTSPEED * 0.2f;
+            speed -= speed * 0.1f;
         }
 
         public void placeInDefaultPosition(Rectangle screenBounds)
