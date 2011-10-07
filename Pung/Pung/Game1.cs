@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -17,9 +16,11 @@ namespace Pung
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        // Managers graphiques.
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        // Police de charactere.
         SpriteFont scoreFont;
 
         // Players
@@ -32,6 +33,8 @@ namespace Pung
         // Keyboard States
         KeyboardState previousState;
         KeyboardState currentState;
+
+        // Game version
         private const string VERSION_NUMBER = "v0.1";
 
         public Game1()
@@ -54,28 +57,28 @@ namespace Pung
         /// </summary>
         protected override void Initialize()
         {
-
-
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             // Publish the service, allowing everything to use the spriteBatch
             Services.AddService(typeof(SpriteBatch), spriteBatch);
 
+            // Classes joueurs
             player1 = new Player(this, Pallet.PlayerNumber.PlayerOne);
             player1.Name = "Player 1";
             player2 = new Player(this, Pallet.PlayerNumber.PlayerTwo);
             player2.Name = "Player 2";
 
+            // Accesory classes.
             ball = new Ball(this);
 
-
-
+            // Will initialize the basic graphical objects.
             base.Initialize();
 
-            // Placed after general initialisation so the texture is loaded and its size initialized
+            // Placed after general initialisation so the texture is already loaded and its size initialized
             player1.Pallet.placeInDefaultPosition(Window.ClientBounds);
             player2.Pallet.placeInDefaultPosition(Window.ClientBounds);
 
+            // Places the ball in the center position and give it a random angle.
             ball.placeInDefaultPosition(Window.ClientBounds);
             
         }
@@ -86,7 +89,6 @@ namespace Pung
         /// </summary>
         protected override void LoadContent()
         {
-            
             // Load the content of the actors
             player1.Pallet.LoadContent(this.Content, "Pallet");
             player2.Pallet.LoadContent(this.Content, "Pallet");
@@ -117,6 +119,7 @@ namespace Pung
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            // Record the current state of the keyboard. 
             currentState = Keyboard.GetState();
 
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -133,8 +136,10 @@ namespace Pung
 
             // TODO: Add your update logic here
 
+            // Update the other components of the game
             base.Update(gameTime);
 
+            // Records the current event as past so the program can know what what key was hit during the last update
             previousState = currentState;
 
         }

@@ -1,0 +1,28 @@
+﻿[General Ideas]
+What	: Implementing buff/debuffs
+
+Why		: It will provide users with the ability to have more FUN[sic] and do more stuff. And roflslap their oponents.
+
+What	: Removing the slow down occuring when scoring points.
+
+Why		: The idea is not to worsen the game experience by slowing down a player, a handicap system may be implemented an be offered as 
+			an option.
+
+ - Sub Idea : Buff/Debuffs -
+
+[Slow Beam]
+What	: Slow beam, a beam that a player pallet can shoot to the other side of the screen that, if it hits the other player's pallet will slow
+			the speed of that pallet.
+
+Why		: By removing the slow down when hitting the pallet there should be a feature to slow down the other player
+
+[Mag-Rail]
+What	: An ability for the pallets to become 'magnetized' so it holds the ball and can release it at will, within a time limit X.
+
+Why		: It breaks the monotomy of the always same and predictable rebounds and give the player some mean of trapping their oponent.
+
+[Spinner]
+What	: A buff that makes the player's pallet rotate on itself clockwise (or anti-) and if the pallet hits the ball at the right angle
+			for example if it turns clockwise and the topmost edge slams the ball it will give the ball a big boost of speed.
+
+Why		: It is kind of a gamble because since the pallet is spinning the ball may come right through the spinning mouvement.
