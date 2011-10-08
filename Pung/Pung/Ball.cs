@@ -105,34 +105,62 @@ namespace Pung
 
         public override void Draw(GameTime gameTime)
         {
+            
             spriteBatch.Draw(ballTexture, ballPosition, Color.White);
+            
 
             base.Draw(gameTime);
         }
 
-
+        /// <summary>
+        /// Move the ball according to it's direction and speed.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void move(GameTime gameTime)
         {
             ballPosition += ballDirection * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
+        /// <summary>
+        /// Place the ball in it's default position
+        /// </summary>
+        /// <param name="screenBounds">Rectangle representing the size of the window in which the pallet may move.</param>
+        /// <remarks>
+        /// This is the only place where screenBounds is given, since there may come a situation when we want to
+        /// spawn the ball anywhere else than it's starting position (thus, not calling this procedure) we have
+        /// no way of knowing the screen bounds leading to unexpected results.
+        /// </remarks>
         public void placeInDefaultPosition(Rectangle screenBounds)
         {
             this.screenBounds = screenBounds;
 
+            // Middle of the screen, centered for the ball.
             ballPosition.X = screenBounds.Width / 2;
             ballPosition.Y = screenBounds.Height / 2;
             speed = DEFAULTSPEED; // Reset the speed
-            GiveInitialImpulse();
+            GiveInitialImpulse(); // Send a ball in a random direction.
         }
 
-        public void IncrementSpeed()
+        /// <summary>
+        /// Increment the speed of the ball by a default amound.
+        /// </summary>
+        internal void IncrementSpeed()
         {
-            speed += speed * 0.2f;
+            speed += speed * 0.2f; // 20% more speed
         }
 
+        /// <summary>
+        /// Increment the speed by a specified amount.
+        /// </summary>
+        /// <param name="amount">Float percentage of speed to increase the speed with.</param>
+        internal void IncrementSpeed(float amount)
+        {
+            speed *= amount;
+        }
         
-
+        /// <summary>
+        /// Give an impulse to the ball toward a random direction.
+        /// </summary>
         private void GiveInitialImpulse()
         {
             // Find an initial direction based on random values.

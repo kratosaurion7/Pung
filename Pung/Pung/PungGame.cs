@@ -14,7 +14,7 @@ namespace Pung
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class PungGame : Microsoft.Xna.Framework.Game
     {
         // Managers graphiques.
         GraphicsDeviceManager graphics;
@@ -37,7 +37,7 @@ namespace Pung
         // Game version
         private const string VERSION_NUMBER = "v0.1";
 
-        public Game1()
+        public PungGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -150,6 +150,7 @@ namespace Pung
             if (ball.Position.Y + ball.Rectangle.Height > Window.ClientBounds.Height) // Bottom of the screen
             {
                 //TODO : Implement a procedure, duplicate code
+                // Revert the direction of the ball and increases its speed. This is to prevent stagnation and provide challenge.
                 ball.Direction *= new Vector2(1, -1);
                 ball.IncrementSpeed();
             }
@@ -183,7 +184,6 @@ namespace Pung
                 ball.Direction *= new Vector2(-1, 1);
             }
 
-
         }
 
         /// <summary>
@@ -204,18 +204,20 @@ namespace Pung
 
         private void drawText()
         {
-            String scoresboard_string = "Scoreboard";
-            
-            String player1_string = player1.Name + ": " + player1.Score;
-            String player2_string = player2.Name + ": " + player2.Score;
+            // Text used in the scoreboard and scores and font fore color.
+            String SCOREBOARD_STRING = "Scoreboard";
+            String Player1_String = player1.Name + ": " + player1.Score;
+            String Player2_String = player2.Name + ": " + player2.Score;
+            Color SCOREBOARD_COLOR = Color.White;
 
+            // Create the position of the scoreboard and offset that subsequent lines will be spaced with.
             Vector2 scoreboard_Position = new Vector2(Window.ClientBounds.Width / 2, 10);
             Vector2 positionOffset = new Vector2(0, 20);
 
-
-            spriteBatch.DrawString(scoreFont, scoresboard_string, scoreboard_Position , Color.White);
-            spriteBatch.DrawString(scoreFont, player1_string, scoreboard_Position + positionOffset, Color.White);
-            spriteBatch.DrawString(scoreFont, player2_string, scoreboard_Position + (positionOffset * 2), Color.White);
+            // Draw each lines according to the starting position and offset.
+            spriteBatch.DrawString(scoreFont, SCOREBOARD_STRING, scoreboard_Position, SCOREBOARD_COLOR);
+            spriteBatch.DrawString(scoreFont, Player1_String, scoreboard_Position + positionOffset, SCOREBOARD_COLOR);
+            spriteBatch.DrawString(scoreFont, Player2_String, scoreboard_Position + (positionOffset * 2), SCOREBOARD_COLOR);
 
 
         }

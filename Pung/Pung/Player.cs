@@ -45,15 +45,31 @@ namespace Pung
         // Reference to the game
         Game gameRef;
 
+        /// <summary>
+        /// Create a new instance of the Player class.
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="playerNumber"></param>
         public Player(Game game, Pallet.PlayerNumber playerNumber)
         {
             pallet = new Pallet(game, playerNumber);
         }
 
-
+        /// <summary>
+        /// Increment the score counter by the default of 1
+        /// </summary>
         internal void AddScore()
         {
             score++;
+        }
+
+        /// <summary>
+        /// Increment the score counter by an amount.
+        /// </summary>
+        /// <param name="amount"></param>
+        internal void AddScore(int amount)
+        {
+            score += amount;
         }
     }
 }
