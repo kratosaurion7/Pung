@@ -35,7 +35,7 @@ namespace Pung
         KeyboardState currentState;
 
         // Game version
-        private const string VERSION_NUMBER = "v0.1";
+        private string VERSION_NUMBER = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public PungGame()
         {
