@@ -14,40 +14,26 @@ namespace Pung
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Ball : Microsoft.Xna.Framework.DrawableGameComponent
+    public class Ball : GameObject, ICollidable
     {
-        Game gameRef; // Reference to the game
-        SpriteBatch spriteBatch;
+        // Direction
+        Vector2 direction;
 
-        Texture2D ballTexture;
-        Vector2 ballPosition;
-        Vector2 ballDirection;
-
-        Rectangle ballRectangle;
-
+        // Random number generator used to determine a starting direction.
         Random randomer = new Random();
 
+        // Speed properties
         const float DEFAULTSPEED = 150;
         float speed = 150;
 
-
+        // Limits of the window
         Rectangle screenBounds;
 
         #region Properties
-        public Vector2 Position
-        {
-            get { return ballPosition; }
-            set { ballPosition = value; }
-        }
-        public Rectangle Rectangle
-        {
-            get { return ballRectangle; }
-            set { ballRectangle = value; }
-        }
         public Vector2 Direction
         {
-            get { return ballDirection; }
-            set { ballDirection = value; }
+            get { return direction; }
+            set { direction = value; }
         }
         public float Speed
         {
@@ -55,20 +41,16 @@ namespace Pung
             set { speed = value; }
         }
 
-
         #endregion
 
-        public Ball(Game game)
+        public Ball(PungGame game)
             : base(game)
         {
-            gameRef = game; // Not sure if this is good practice, may not be needed. Replaceable by Game ?
 
-            ballPosition = new Vector2();
-            ballDirection = new Vector2();
+            direction = new Vector2();
 
-            spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
             
-
+            
         }
 
         /// <summary>
@@ -78,7 +60,7 @@ namespace Pung
         public override void Initialize()
         {
             // TODO: Add your initialization code here
-
+            
             base.Initialize();
         }
        
@@ -90,25 +72,22 @@ namespace Pung
         {
 
             move(gameTime);
-
+            
+            
             // Refresh the rectangle info's for the current position
-            ballRectangle = new Rectangle((int)ballPosition.X, (int)ballPosition.Y, ballTexture.Width, ballTexture.Height);
+            ObjectRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
             base.Update(gameTime);
         }
 
         public void LoadContent(ContentManager theContentManager, string theAssetName)
         {
-            ballTexture = theContentManager.Load<Texture2D>(theAssetName);
-            
+            base.LoadContent(theContentManager, theAssetName);
             
         }
 
         public override void Draw(GameTime gameTime)
         {
             
-            spriteBatch.Draw(ballTexture, ballPosition, Color.White);
-            
-
             base.Draw(gameTime);
         }
 
@@ -118,7 +97,7 @@ namespace Pung
         /// <param name="gameTime"></param>
         public void move(GameTime gameTime)
         {
-            ballPosition += ballDirection * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            Position += direction * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         /// <summary>
@@ -135,8 +114,8 @@ namespace Pung
             this.screenBounds = screenBounds;
 
             // Middle of the screen, centered for the ball.
-            ballPosition.X = screenBounds.Width / 2;
-            ballPosition.Y = screenBounds.Height / 2;
+            position.X = screenBounds.Width / 2;
+            position.Y = screenBounds.Height / 2;
             speed = DEFAULTSPEED; // Reset the speed
             GiveInitialImpulse(); // Send a ball in a random direction.
         }
@@ -165,15 +144,159 @@ namespace Pung
         {
             // Find an initial direction based on random values.
             Vector2 randomPoint = new Vector2(randomer.Next(screenBounds.Width),randomer.Next(screenBounds.Height));
-            Vector2 movement = randomPoint - ballPosition;
+            Vector2 movement = randomPoint - position;
 
             if (movement != Vector2.Zero)
             {
                 movement.Normalize(); // What if I normalized it first ?
-                ballDirection = movement;
-                
+                direction = movement;
+
             }
 
         }
+
+        #region ICollidable Members
+
+        public void CheckCollisions(GameObject target)
+        {
+            UpCollision(target);
+            DownCollision(target);
+            LeftCollision(target);
+            RightCollision(target);
+        }
+
+        public void UpCollision(GameObject target)
+        {
+            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
+            {
+                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+                Group targetGroup = new Group();
+                foreach (Group item in GroupsContainingTarget)
+                {
+                    if (item.Contains(target))
+                    {
+                        targetGroup = item; // TODO : That is a FUCKING long way to find out the Target's group. Let's put a variable somewhere.
+                    }
+                }
+
+                switch (targetGroup.GroupName)
+                {
+                    case "Players":
+                        direction *= new Vector2(1, -1);
+                        IncrementSpeed();
+                        break;
+                    case "Collisions":
+                        direction *= new Vector2(1, -1);
+                        break;
+                }
+            }
+            else if (target == null)
+            {
+                direction *= new Vector2(1, -1);
+                IncrementSpeed();
+            }
+        }
+
+        public void DownCollision(GameObject target)
+        {
+            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
+            {
+                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+                Group targetGroup = new Group();
+                foreach (Group item in GroupsContainingTarget)
+                {
+                    if (item.Contains(target))
+                    {
+                        targetGroup = item; 
+                    }
+                }
+
+                switch (targetGroup.GroupName)
+                {
+                    case "Players":
+                        direction *= new Vector2(1, -1);
+                        IncrementSpeed();
+                        break;
+                    case "Collisions":
+                        direction *= new Vector2(1, -1);
+                        break;
+                }
+            }
+            else if (target == null)
+            {
+                direction *= new Vector2(1, -1);
+                IncrementSpeed();
+            }
+        }
+
+        public void LeftCollision(GameObject target)
+        {
+            // Checks if the target is a Gameobject and if both of these objects are colliding with each other.
+            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
+            {
+                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+                Group targetGroup = new Group();
+                foreach (Group item in GroupsContainingTarget)
+                {
+                    if (item.Contains(target))
+                    {
+                        targetGroup = item; // Works weirdly.
+                    }
+                }
+
+
+                switch (targetGroup.GroupName)
+                {
+                    case "Players":
+                        direction *= new Vector2(-1, 1);
+                        IncrementSpeed();
+                        break;
+                    case "Collisions":
+                        direction *= new Vector2(-1, 1);
+                        break;
+                }
+            }
+            else if (target == null)
+            {
+                direction *= new Vector2(-1, 1);
+                IncrementSpeed();
+            }
+        }
+
+        public void RightCollision(GameObject target)
+        {
+            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
+            {
+                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+                Group targetGroup = new Group();
+                foreach (Group item in GroupsContainingTarget)
+                {
+                    if (item.Contains(target))
+                    {
+                        targetGroup = item;
+                    }
+                }
+
+
+                switch (targetGroup.GroupName)
+                {
+                    case "Players":
+                        direction *= new Vector2(-1, 1);
+                        IncrementSpeed();
+                        break;
+                    case "Collisions":
+                        direction *= new Vector2(-1, 1);
+                        break;
+                }
+            }
+            else if (target == null)
+            {
+                direction *= new Vector2(-1, 1);
+                IncrementSpeed();
+            }
+        }
+
+        #endregion
     }
+
 }

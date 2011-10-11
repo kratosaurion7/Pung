@@ -42,15 +42,12 @@ namespace Pung
             set { pallet = value; }
         }
 
-        // Reference to the game
-        Game gameRef;
-
         /// <summary>
         /// Create a new instance of the Player class.
         /// </summary>
         /// <param name="game"></param>
         /// <param name="playerNumber"></param>
-        public Player(Game game, Pallet.PlayerNumber playerNumber)
+        public Player(PungGame game, Pallet.PlayerNumber playerNumber)
         {
             pallet = new Pallet(game, playerNumber);
         }

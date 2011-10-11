@@ -13,8 +13,9 @@ using Microsoft.Xna.Framework.Media;
 namespace Pung
 {
 
-    public class Pallet : Microsoft.Xna.Framework.DrawableGameComponent
+    public class Pallet : GameObject
     {
+        
         /// <summary>
         /// Values representing a player number.
         /// </summary>
@@ -24,13 +25,7 @@ namespace Pung
             PlayerTwo
         }
 
-        // Graphical devices
-        SpriteBatch spriteBatch;
-
         // Pallet graphical information
-        Texture2D palletTexture;
-        Vector2 palletPosition;
-        Rectangle palletRectangle;
 
         // Speed information
         const float DEFAULTSPEED = 450;
@@ -43,17 +38,7 @@ namespace Pung
         Rectangle screenBounds;
 
         #region Properties
-        public Vector2 PalletPosition
-        {
-            get { return palletPosition; }
-            set { palletPosition = value; }
-        }
 
-        public Rectangle PalletRectangle
-        {
-            get { return palletRectangle; }
-            set { palletRectangle = value; }
-        }
         public float Speed
         {
             get { return speed; }
@@ -62,19 +47,16 @@ namespace Pung
 
         #endregion
 
+
         /// <summary>
         /// Create a new instance of the Pallet class using the game reference and a player number.
         /// </summary>
         /// <param name="game">Reference to the game class.</param>
         /// <param name="playerNumber">Player number.</param>
-        public Pallet(Game game, PlayerNumber playerNumber)
+        public Pallet(PungGame game, PlayerNumber playerNumber)
             : base(game)
         {
             playerIndex = playerNumber; // Associate the pallet to a player using it's player number.
-
-            spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
-
-            palletPosition = new Vector2();
 
         }
 
@@ -85,10 +67,10 @@ namespace Pung
         }
 
         public override void Update(GameTime gameTime)
-        {
+        {// BUG : Update itself twice
 
             // Set the rectangle from the dimensions of the texture
-            palletRectangle = new Rectangle((int)palletPosition.X, (int)palletPosition.Y, palletTexture.Width, palletTexture.Height);
+            objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
 
             if (playerIndex == PlayerNumber.PlayerOne)
             {// Player 1 is pressing his keys
@@ -124,14 +106,11 @@ namespace Pung
 
         public void LoadContent(ContentManager theContentManager, string theAssetName)
         {
-            palletTexture = theContentManager.Load<Texture2D>(theAssetName);
-            palletRectangle = palletTexture.Bounds;
-            
+            base.LoadContent(theContentManager, theAssetName);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Draw(palletTexture, palletPosition, Color.White);
 
             base.Draw(gameTime);
         }
@@ -143,9 +122,9 @@ namespace Pung
         public void moveUp(GameTime gameTime)
         {
             // Check to see if a mouvement would put the ball out of the screen's bounds
-            if (palletPosition.Y >= 0 + speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
+            if (position.Y >= 0 + speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
             {
-                palletPosition.Y -= speed * (float)gameTime.ElapsedGameTime.TotalSeconds; 
+                position.Y -= speed * (float)gameTime.ElapsedGameTime.TotalSeconds; 
             }
         }
 
@@ -156,9 +135,9 @@ namespace Pung
         public void moveDown(GameTime gameTime)
         {
             // Check to see if a mouvement would put the ball out of the screen's bounds
-            if (palletPosition.Y + palletRectangle.Height <= screenBounds.Height - speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
+            if (position.Y + objectRectangle.Height <= screenBounds.Height - speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
             {
-                palletPosition.Y += speed * (float)gameTime.ElapsedGameTime.TotalSeconds; 
+                position.Y += speed * (float)gameTime.ElapsedGameTime.TotalSeconds; 
             }
         }
 
@@ -192,16 +171,16 @@ namespace Pung
             this.screenBounds = screenBounds; // Associate the pallet's screenBound with the one given. TODO : Change this.
 
             // Half of the screen centered for the pallet.
-            int STARTING_HEIGHT_MIDPOINT = screenBounds.Height / 2 - palletRectangle.Height / 2;
+            int STARTING_HEIGHT_MIDPOINT = screenBounds.Height / 2 - objectRectangle.Height / 2;
 
             // Depending on the player number he will spawn on one end of the screen or the other.
             if (playerIndex == PlayerNumber.PlayerOne)
             {
-                palletPosition = new Vector2(20, STARTING_HEIGHT_MIDPOINT);
+                position = new Vector2(20, STARTING_HEIGHT_MIDPOINT);
             }
             else if (playerIndex == PlayerNumber.PlayerTwo)
             {
-                palletPosition = new Vector2(screenBounds.Width - palletRectangle.Width - 20, STARTING_HEIGHT_MIDPOINT);
+                position = new Vector2(screenBounds.Width - objectRectangle.Width - 20, STARTING_HEIGHT_MIDPOINT);
             }
             else
             {

@@ -37,11 +37,19 @@ namespace Pung
         // Game version
         private string VERSION_NUMBER = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+        // Groups Definition
+        Group collisionGroup;
+        Group playerGroup;
+
+        // Blocks
+        BlockBunch BlockList;
+        const int TIME_UNTIL_BLOCK = 5000;
+
         public PungGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
+            
             Window.Title = "Pung " + VERSION_NUMBER;
 
             // Setting the window size
@@ -68,11 +76,28 @@ namespace Pung
             player2 = new Player(this, Pallet.PlayerNumber.PlayerTwo);
             player2.Name = "Player 2";
 
-            // Accesory classes.
+            // Entity classes.
             ball = new Ball(this);
+            
+            // Collision groups
+            collisionGroup = new Group("Collisions");
+            playerGroup = new Group("Players");
+
+            playerGroup.Add(player1.Pallet);
+            playerGroup.Add(player2.Pallet);
+
+            // Groups
+            GroupList GameGroups = new GroupList();
+            GameGroups.Add(collisionGroup);
+            GameGroups.Add(playerGroup);
+            //Add the list of groups into the services so objects can retrieve info about items in specific groups
+            Services.AddService(typeof(GroupList), GameGroups);
+
+            // Blocks
+            BlockList = new BlockBunch(this);
 
             // Will initialize the basic graphical objects.
-            base.Initialize();
+            base.Initialize(); // Goes to LoadContent()
 
             // Placed after general initialisation so the texture is already loaded and its size initialized
             player1.Pallet.placeInDefaultPosition(Window.ClientBounds);
@@ -92,7 +117,7 @@ namespace Pung
             // Load the content of the actors
             player1.Pallet.LoadContent(this.Content, "Pallet");
             player2.Pallet.LoadContent(this.Content, "Pallet");
-            ball.LoadContent(this.Content, "Ball");
+            ball.LoadContent(this.Content, "RedBall");
 
             // Load the fonts
             scoreFont = this.Content.Load<SpriteFont>("scoreFont");
@@ -101,6 +126,7 @@ namespace Pung
             Components.Add(player1.Pallet);
             Components.Add(player2.Pallet);
             Components.Add(ball);
+            Components.Add(BlockList);
         }
 
         /// <summary>
@@ -132,34 +158,42 @@ namespace Pung
 
             }
 
-            CheckCollisions();
+            
 
             // TODO: Add your update logic here
+            
 
             // Update the other components of the game
             base.Update(gameTime);
 
+            CheckBallCollisions();
+
+            // Block generation code
+            if (Math.Floor(gameTime.TotalGameTime.TotalMilliseconds) % TIME_UNTIL_BLOCK == 0 && gameTime.TotalGameTime.TotalMilliseconds > 0)
+            {
+                Block newBlock = new Block(this);
+                BlockList.addBlock(newBlock);
+            }
+            
             // Records the current event as past so the program can know what what key was hit during the last update
             previousState = currentState;
-
+            //GameTimer += gameTime.ElapsedGameTime.Milliseconds;
         }
 
-        private void CheckCollisions()
+        private void CheckBallCollisions()
         {
             // Check for the ball against the edges of the screen
-            if (ball.Position.Y + ball.Rectangle.Height > Window.ClientBounds.Height) // Bottom of the screen
+            if (ball.Position.Y + ball.ObjectRectangle.Height > Window.ClientBounds.Height) // Bottom of the screen
             {
-                //TODO : Implement a procedure, duplicate code
-                // Revert the direction of the ball and increases its speed. This is to prevent stagnation and provide challenge.
-                ball.Direction *= new Vector2(1, -1);
-                ball.IncrementSpeed();
+                ball.DownCollision(null);
+                
             }
             else if (ball.Position.Y < 0) // Top of the screen
             {
-                ball.Direction *= new Vector2(1, -1);
-                ball.IncrementSpeed();
+
+                ball.UpCollision(null);
             }
-            if (ball.Position.X + ball.Rectangle.Width > Window.ClientBounds.Width) // Right of the screen
+            if (ball.Position.X + ball.ObjectRectangle.Width > Window.ClientBounds.Width) // Right of the screen
             {
                 // Player 1 scores
                 player1.AddScore();
@@ -175,15 +209,41 @@ namespace Pung
             }
 
             // Check for collisions against the pallets
-            if (player1.Pallet.PalletRectangle.Intersects(ball.Rectangle))
+            if (player1.Pallet.ObjectRectangle.Intersects(ball.ObjectRectangle))
             {
-                ball.Direction *= new Vector2(-1, 1);
+                ball.LeftCollision(player1.Pallet);
             }
-            else if (player2.Pallet.PalletRectangle.Intersects(ball.Rectangle))
+            else if (player2.Pallet.ObjectRectangle.Intersects(ball.ObjectRectangle))
             {
-                ball.Direction *= new Vector2(-1, 1);
+                ball.RightCollision(player2.Pallet);
             }
 
+            //Check for collisions against blocks
+            foreach (Block item in collisionGroup)
+            {
+                if (ball.Position.X + ball.ObjectRectangle.Width > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+                {
+                    ball.RightCollision(item);
+                }
+                // TODO : I'M HERE
+                if (ball.Position.X < item.Position.X + item.ObjectRectangle.Width && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+                {
+                    ball.LeftCollision(item);
+                }
+
+                if (ball.Position.Y + ball.ObjectRectangle.Height > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+                {
+                    ball.UpCollision(item);
+                }
+
+                if (ball.Position.Y < item.Position.Y + item.ObjectRectangle.Height && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+                {
+                    ball.DownCollision(item);
+                }
+
+
+
+            }
         }
 
         /// <summary>
