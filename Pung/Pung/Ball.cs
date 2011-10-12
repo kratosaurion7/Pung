@@ -163,22 +163,13 @@ namespace Pung
             {
                 if (this.objectRectangle.Intersects(item.ObjectRectangle))
                 {
-                    if (this.objectRectangle.Y + this.objectRectangle.Height >= item.ObjectRectangle.Y)
-                    {
-                        UpCollision(item);
-                    }
-                    if (this.objectRectangle.Y <= item.ObjectRectangle.Y + item.ObjectRectangle.Height)
-                    {
-                        DownCollision(item);
-                    }
-                    if (this.objectRectangle.X + this.objectRectangle.Width >= item.ObjectRectangle.X)
-                    {
-                        LeftCollision(item);
-                    }
-                    if (this.objectRectangle.X <= item.ObjectRectangle.X + item.ObjectRectangle.Width)
-                    {
-                        RightCollision(item);
-                    }                    
+                    Vector2 BallCenter = this.position;
+                    Vector2 BlockCenter = new Vector2(item.ObjectRectangle.Center.X, item.ObjectRectangle.Center.Y);
+
+                    Vector2 Difference = BallCenter - BlockCenter;
+                    Difference.Normalize();
+                    
+                    this.direction = Difference;
 
                 }
             }
