@@ -49,8 +49,8 @@ namespace Pung
 
             direction = new Vector2();
 
-            
-            
+
+
         }
 
         /// <summary>
@@ -60,10 +60,10 @@ namespace Pung
         public override void Initialize()
         {
             // TODO: Add your initialization code here
-            
+
             base.Initialize();
         }
-       
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
@@ -72,22 +72,22 @@ namespace Pung
         {
 
             move(gameTime);
-            
-            
-            // Refresh the rectangle info's for the current position
-            ObjectRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
+
+            // Check Collisions
+            CheckCollisions();
+
             base.Update(gameTime);
         }
 
         public void LoadContent(ContentManager theContentManager, string theAssetName)
         {
             base.LoadContent(theContentManager, theAssetName);
-            
+
         }
 
         public override void Draw(GameTime gameTime)
         {
-            
+
             base.Draw(gameTime);
         }
 
@@ -136,14 +136,14 @@ namespace Pung
         {
             speed *= amount;
         }
-        
+
         /// <summary>
         /// Give an impulse to the ball toward a random direction.
         /// </summary>
         private void GiveInitialImpulse()
         {
             // Find an initial direction based on random values.
-            Vector2 randomPoint = new Vector2(randomer.Next(screenBounds.Width),randomer.Next(screenBounds.Height));
+            Vector2 randomPoint = new Vector2(randomer.Next(screenBounds.Width), randomer.Next(screenBounds.Height));
             Vector2 movement = randomPoint - position;
 
             if (movement != Vector2.Zero)
@@ -157,18 +157,36 @@ namespace Pung
 
         #region ICollidable Members
 
-        public void CheckCollisions(GameObject target)
+        public void CheckCollisions()
         {
-            UpCollision(target);
-            DownCollision(target);
-            LeftCollision(target);
-            RightCollision(target);
+            foreach (Block item in BlockBunch.Blocks)
+            {
+                if (this.objectRectangle.Intersects(item.ObjectRectangle))
+                {
+                    if (this.objectRectangle.Y + this.objectRectangle.Height >= item.ObjectRectangle.Y)
+                    {
+                        UpCollision(item);
+                    }
+                    if (this.objectRectangle.Y <= item.ObjectRectangle.Y + item.ObjectRectangle.Height)
+                    {
+                        DownCollision(item);
+                    }
+                    if (this.objectRectangle.X + this.objectRectangle.Width >= item.ObjectRectangle.X)
+                    {
+                        LeftCollision(item);
+                    }
+                    if (this.objectRectangle.X <= item.ObjectRectangle.X + item.ObjectRectangle.Width)
+                    {
+                        RightCollision(item);
+                    }                    
+
+                }
+            }
+
         }
 
         public void UpCollision(GameObject target)
         {
-            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
-            {
                 List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
                 Group targetGroup = new Group();
                 foreach (Group item in GroupsContainingTarget)
@@ -190,24 +208,22 @@ namespace Pung
                         break;
                 }
             }
-            else if (target == null)
-            {
-                direction *= new Vector2(1, -1);
-                IncrementSpeed();
-            }
+
+        public void UpCollision()
+        {
+            direction *= new Vector2(1, -1);
+            IncrementSpeed();
         }
 
         public void DownCollision(GameObject target)
         {
-            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
-            {
                 List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
                 Group targetGroup = new Group();
                 foreach (Group item in GroupsContainingTarget)
                 {
                     if (item.Contains(target))
                     {
-                        targetGroup = item; 
+                        targetGroup = item;
                     }
                 }
 
@@ -222,18 +238,16 @@ namespace Pung
                         break;
                 }
             }
-            else if (target == null)
-            {
-                direction *= new Vector2(1, -1);
-                IncrementSpeed();
-            }
+
+        public void DownCollision()
+        {
+            direction *= new Vector2(1, -1);
+            IncrementSpeed();
+
         }
 
         public void LeftCollision(GameObject target)
         {
-            // Checks if the target is a Gameobject and if both of these objects are colliding with each other.
-            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
-            {
                 List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
                 Group targetGroup = new Group();
                 foreach (Group item in GroupsContainingTarget)
@@ -256,17 +270,16 @@ namespace Pung
                         break;
                 }
             }
-            else if (target == null)
-            {
-                direction *= new Vector2(-1, 1);
-                IncrementSpeed();
-            }
+
+        public void Leftcollision()
+        {
+            direction *= new Vector2(-1, 1);
+            IncrementSpeed();
+
         }
 
         public void RightCollision(GameObject target)
         {
-            if (target != null && objectRectangle.Intersects(target.ObjectRectangle))
-            {
                 List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
                 Group targetGroup = new Group();
                 foreach (Group item in GroupsContainingTarget)
@@ -289,11 +302,12 @@ namespace Pung
                         break;
                 }
             }
-            else if (target == null)
-            {
-                direction *= new Vector2(-1, 1);
-                IncrementSpeed();
-            }
+
+        public void RightCollision()
+        {
+            direction *= new Vector2(-1, 1);
+            IncrementSpeed();
+
         }
 
         #endregion

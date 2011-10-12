@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
+
 namespace Pung
 {
     /// <summary>
@@ -19,7 +20,7 @@ namespace Pung
         // Managers graphiques.
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
+        
         // Police de charactere.
         SpriteFont scoreFont;
 
@@ -43,7 +44,7 @@ namespace Pung
 
         // Blocks
         BlockBunch BlockList;
-        const int TIME_UNTIL_BLOCK = 5000;
+        const int TIME_UNTIL_BLOCK = 50;
 
         public PungGame()
         {
@@ -185,13 +186,13 @@ namespace Pung
             // Check for the ball against the edges of the screen
             if (ball.Position.Y + ball.ObjectRectangle.Height > Window.ClientBounds.Height) // Bottom of the screen
             {
-                ball.DownCollision(null);
+                ball.DownCollision(); // TODO : Rebound against the edges of the screen should be implemented in the Ball class.
                 
             }
             else if (ball.Position.Y < 0) // Top of the screen
             {
 
-                ball.UpCollision(null);
+                ball.UpCollision();
             }
             if (ball.Position.X + ball.ObjectRectangle.Width > Window.ClientBounds.Width) // Right of the screen
             {
@@ -219,31 +220,31 @@ namespace Pung
             }
 
             //Check for collisions against blocks
-            foreach (Block item in collisionGroup)
-            {
-                if (ball.Position.X + ball.ObjectRectangle.Width > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-                {
-                    ball.RightCollision(item);
-                }
-                // TODO : I'M HERE
-                if (ball.Position.X < item.Position.X + item.ObjectRectangle.Width && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-                {
-                    ball.LeftCollision(item);
-                }
+            //foreach (Block item in collisionGroup)
+            //{
+            //    if (ball.Position.X + ball.ObjectRectangle.Width > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+            //    {
+            //        ball.RightCollision(item);
+            //    }
+            //    // TODO : I'M HERE
+            //    if (ball.Position.X < item.Position.X + item.ObjectRectangle.Width && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+            //    {
+            //        ball.LeftCollision(item);
+            //    }
 
-                if (ball.Position.Y + ball.ObjectRectangle.Height > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-                {
-                    ball.UpCollision(item);
-                }
+            //    if (ball.Position.Y + ball.ObjectRectangle.Height > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+            //    {
+            //        ball.UpCollision(item);
+            //    }
 
-                if (ball.Position.Y < item.Position.Y + item.ObjectRectangle.Height && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-                {
-                    ball.DownCollision(item);
-                }
+            //    if (ball.Position.Y < item.Position.Y + item.ObjectRectangle.Height && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
+            //    {
+            //        ball.DownCollision(item);
+            //    }
 
 
 
-            }
+            //}
         }
 
         /// <summary>

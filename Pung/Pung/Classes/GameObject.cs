@@ -70,7 +70,8 @@ namespace Pung
         {
             
             texture = theContentManager.Load<Texture2D>(theAssetName);
-            objectRectangle = texture.Bounds;
+            //objectRectangle = texture.Bounds;
+            objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
 
@@ -88,6 +89,8 @@ namespace Pung
 
         public override void Update(GameTime gameTime)
         {
+            objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
+
             base.Update(gameTime);
         }
 

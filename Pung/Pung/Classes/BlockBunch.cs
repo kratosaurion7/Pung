@@ -46,7 +46,9 @@ namespace Pung
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            // BlockBunch cannot call his Base.Update because it updates the ObjectRectangle using the texture size. Which this object lack.
+            // Solution : Make Blockbunch inherits from something else
+            //base.Update(gameTime);
         }
 
         public void LoadContent(ContentManager theContentManager, string theAssetName)
@@ -59,10 +61,11 @@ namespace Pung
         {
             GroupList groupList = (GroupList)Game.Services.GetService(typeof(GroupList));
             Group collisionGroup = groupList.GetGroup("Collisions");
-            collisionGroup.Add(newBlock);
-
             newBlock.LoadContent(Game.Content, "Block");
             blocks.Add(newBlock);
+            collisionGroup.Add(newBlock);
+
+
         }
 
 

@@ -15,7 +15,7 @@ namespace Pung
     public interface ICollidable
     {
 
-        void CheckCollisions(GameObject target);
+        void CheckCollisions();
 
         void UpCollision(GameObject target);
 

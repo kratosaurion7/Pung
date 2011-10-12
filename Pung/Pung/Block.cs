@@ -72,6 +72,7 @@ namespace Pung
         public void LoadContent(ContentManager theContentManager, string theAssetName)
         {
             base.LoadContent(theContentManager, theAssetName);
+            objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
     }

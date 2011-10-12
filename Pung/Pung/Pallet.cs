@@ -69,9 +69,6 @@ namespace Pung
         public override void Update(GameTime gameTime)
         {// BUG : Update itself twice
 
-            // Set the rectangle from the dimensions of the texture
-            objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
-
             if (playerIndex == PlayerNumber.PlayerOne)
             {// Player 1 is pressing his keys
                 if (Keyboard.GetState().IsKeyDown(Keys.W))
