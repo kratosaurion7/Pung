@@ -229,10 +229,12 @@ namespace Pung
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
+            // Add your drawing code here
             spriteBatch.Begin();
-            drawText();
+
             base.Draw(gameTime);
+
+            drawText();
 
             spriteBatch.End();
         }
@@ -246,7 +248,7 @@ namespace Pung
             String SCOREBOARD_STRING = "Scoreboard";
             String Player1_String = player1.Name + ": " + player1.Score;
             String Player2_String = player2.Name + ": " + player2.Score;
-            Color SCOREBOARD_COLOR = Color.White;
+            Color SCOREBOARD_COLOR = Color.Yellow;
 
             // Create the position of the scoreboard and offset that subsequent lines will be spaced with.
             Vector2 scoreboard_Position = new Vector2(Window.ClientBounds.Width / 2, 10);
@@ -256,7 +258,7 @@ namespace Pung
             spriteBatch.DrawString(scoreFont, SCOREBOARD_STRING, scoreboard_Position, SCOREBOARD_COLOR);
             spriteBatch.DrawString(scoreFont, Player1_String, scoreboard_Position + positionOffset, SCOREBOARD_COLOR);
             spriteBatch.DrawString(scoreFont, Player2_String, scoreboard_Position + (positionOffset * 2), SCOREBOARD_COLOR);
-
+            
         }
     }
 }
