@@ -25,17 +25,12 @@ namespace Pung
             PlayerTwo
         }
 
-        // Pallet graphical information
-
         // Speed information
         const float DEFAULTSPEED = 450;
         float speed = 450;
 
         // Player ownership of the pallet
         PlayerNumber playerIndex;
-
-        // Limits of the windows in which the pallet must move.
-        Rectangle screenBounds;
 
         #region Properties
 
@@ -67,7 +62,7 @@ namespace Pung
         }
 
         public override void Update(GameTime gameTime)
-        {// BUG : Update itself twice
+        {// BUG : Update itself twice. bug/feature ?
 
             if (playerIndex == PlayerNumber.PlayerOne)
             {// Player 1 is pressing his keys
@@ -113,7 +108,7 @@ namespace Pung
         }
 
         /// <summary>
-        /// Moves the pallet up the screen.
+        /// Moves the pallet up the screen depending on speed.
         /// </summary>
         /// <param name="gameTime"></param>
         public void moveUp(GameTime gameTime)
@@ -126,49 +121,26 @@ namespace Pung
         }
 
         /// <summary>
-        /// Moves the pallet down the screen.
+        /// Moves the pallet down the screen depending on speed.
         /// </summary>
         /// <param name="gameTime"></param>
         public void moveDown(GameTime gameTime)
         {
             // Check to see if a mouvement would put the ball out of the screen's bounds
-            if (position.Y + objectRectangle.Height <= screenBounds.Height - speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
+            if (position.Y + objectRectangle.Height <= Game.Window.ClientBounds.Height - speed * (float)gameTime.ElapsedGameTime.TotalSeconds)
             {
                 position.Y += speed * (float)gameTime.ElapsedGameTime.TotalSeconds; 
             }
         }
 
         /// <summary>
-        /// Speeds up the pallet.
-        /// </summary>
-        public void IncrementSpeed()
-        {
-            speed += speed * 0.1f;
-        }
-
-        /// <summary>
-        /// Speeds down the pallet.
-        /// </summary>
-        public void DecrementSpeed()
-        {
-            speed -= speed * 0.1f;
-        }
-
-        /// <summary>
         /// Place the pallet in it's default position depending on it's player number.
         /// </summary>
         /// <param name="screenBounds">Rectangle representing the size of the window in which the pallet may move.</param>
-        /// <remarks>
-        /// This is the only place where screenBounds is given, since there may come a situation when we want to
-        /// spawn the pallet anywhere else than it's starting position (thus, not calling this procedure) we have
-        /// no way of knowing the screen bounds leading to unexpected results.
-        /// </remarks>
-        public void placeInDefaultPosition(Rectangle screenBounds)
+        public void placeInDefaultPosition()
         {
-            this.screenBounds = screenBounds; // Associate the pallet's screenBound with the one given. TODO : Change this.
-
             // Half of the screen centered for the pallet.
-            int STARTING_HEIGHT_MIDPOINT = screenBounds.Height / 2 - objectRectangle.Height / 2;
+            int STARTING_HEIGHT_MIDPOINT = Game.Window.ClientBounds.Height / 2 - objectRectangle.Height / 2;
 
             // Depending on the player number he will spawn on one end of the screen or the other.
             if (playerIndex == PlayerNumber.PlayerOne)
@@ -177,7 +149,7 @@ namespace Pung
             }
             else if (playerIndex == PlayerNumber.PlayerTwo)
             {
-                position = new Vector2(screenBounds.Width - objectRectangle.Width - 20, STARTING_HEIGHT_MIDPOINT);
+                position = new Vector2(Game.Window.ClientBounds.Width - objectRectangle.Width - 20, STARTING_HEIGHT_MIDPOINT);
             }
             else
             {

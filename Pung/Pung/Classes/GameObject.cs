@@ -12,16 +12,18 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Pung
 {
+    /// <summary>
+    /// GameObject encapsulates DrawableGameComponent for the need to add additional properties fo the DGC classes.
+    /// </summary>
     public class GameObject : DrawableGameComponent
     {
-
+        // Graphical properties of the Object.
         protected Texture2D texture;
         protected Vector2 position;
         protected Rectangle objectRectangle;
 
-        protected Game gameRef;
+        // Services
         protected SpriteBatch spriteBatch;
-
 
         #region Properties
 
@@ -35,16 +37,6 @@ namespace Pung
             get { return position; }
             set { position = value; }
         }
-        public Game GameRef
-        {
-            get { return gameRef; }
-            set { gameRef = value; }
-        }
-        public SpriteBatch SpriteBatch
-        {
-            get { return spriteBatch; }
-            set { spriteBatch = value; }
-        }
         public Rectangle ObjectRectangle
         {
             get { return objectRectangle; }
@@ -53,13 +45,9 @@ namespace Pung
 
         #endregion
 
-
         public GameObject(PungGame game)
             : base(game)
-        {
-            gameRef = game; // Not sure if this is good practice, may not be needed. Replaceable by Game ?
-            
-            
+        {            
             position = new Vector2();
 
             spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
@@ -68,12 +56,10 @@ namespace Pung
 
         protected void LoadContent(ContentManager theContentManager, string theAssetName)
         {
-            
             texture = theContentManager.Load<Texture2D>(theAssetName);
             //objectRectangle = texture.Bounds;
             objectRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
-
 
         public override void Initialize()
         {
@@ -94,13 +80,17 @@ namespace Pung
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// This method returns a list of groups that contains this instance of GameObject.
+        /// </summary>
+        /// <returns></returns>
         public List<Group> GetGroupsContainingThisGameObject()
         {
             List<Group> GroupsContainingMe = new List<Group>();
 
             GroupList groups = (GroupList)Game.Services.GetService(typeof(GroupList));
             foreach (Group item in groups)
-            {
+            {// Looks through each groups and if they contain this object they will be returned.
                 if (item.Contains(this))
                 {
                     GroupsContainingMe.Add(item);
@@ -110,8 +100,6 @@ namespace Pung
             return GroupsContainingMe;
 
         }
-
-
 
     }
 }

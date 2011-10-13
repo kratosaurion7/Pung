@@ -145,7 +145,6 @@
     <Content Include="Developpment\Features_Ideas.txt" />
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <Content Include="WhiteBall.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PungContent\PungContent.contentproj">

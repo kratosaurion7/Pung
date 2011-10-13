@@ -24,10 +24,9 @@ namespace Pung
 
         // Speed properties
         const float DEFAULTSPEED = 150;
+        const float MAX_SPEED = 1000;
+        const float SPEED_MULTIPLIER = 0.2f;
         float speed = 150;
-
-        // Limits of the window
-        Rectangle screenBounds;
 
         #region Properties
         public Vector2 Direction
@@ -46,10 +45,7 @@ namespace Pung
         public Ball(PungGame game)
             : base(game)
         {
-
             direction = new Vector2();
-
-
 
         }
 
@@ -109,13 +105,11 @@ namespace Pung
         /// spawn the ball anywhere else than it's starting position (thus, not calling this procedure) we have
         /// no way of knowing the screen bounds leading to unexpected results.
         /// </remarks>
-        public void placeInDefaultPosition(Rectangle screenBounds)
+        public void placeInDefaultPosition()
         {
-            this.screenBounds = screenBounds;
-
             // Middle of the screen, centered for the ball.
-            position.X = screenBounds.Width / 2;
-            position.Y = screenBounds.Height / 2;
+            position.X = Game.Window.ClientBounds.Width / 2;
+            position.Y = Game.Window.ClientBounds.Height / 2;
             speed = DEFAULTSPEED; // Reset the speed
             GiveInitialImpulse(); // Send a ball in a random direction.
         }
@@ -125,7 +119,11 @@ namespace Pung
         /// </summary>
         internal void IncrementSpeed()
         {
-            speed += speed * 0.2f; // 20% more speed
+            if (speed + speed * SPEED_MULTIPLIER < MAX_SPEED)
+            {
+                speed += speed * SPEED_MULTIPLIER;
+            }
+
         }
 
         /// <summary>
@@ -143,32 +141,40 @@ namespace Pung
         private void GiveInitialImpulse()
         {
             // Find an initial direction based on random values.
-            Vector2 randomPoint = new Vector2(randomer.Next(screenBounds.Width), randomer.Next(screenBounds.Height));
+            Vector2 randomPoint = new Vector2(randomer.Next(Game.Window.ClientBounds.Width), randomer.Next(Game.Window.ClientBounds.Height));
             Vector2 movement = randomPoint - position;
 
             if (movement != Vector2.Zero)
             {
                 movement.Normalize(); // What if I normalized it first ?
                 direction = movement;
-
             }
 
         }
 
         #region ICollidable Members
 
+        /// <summary>
+        /// Will check for collisions on the Ball.
+        /// </summary>
         public void CheckCollisions()
         {
             foreach (Block item in BlockBunch.Blocks)
-            {
+            {// Check each block against the ball
                 if (this.objectRectangle.Intersects(item.ObjectRectangle))
-                {
+                {// Enters only if both the ball and the block intersects
+
+                    /* Make the difference between the center of the ball and the center
+                     * of the rectangle. 
+                     * Substract them so the difference can be normalized and expressed
+                     * as a direction and used on the ball. */
                     Vector2 BallCenter = this.position;
                     Vector2 BlockCenter = new Vector2(item.ObjectRectangle.Center.X, item.ObjectRectangle.Center.Y);
 
                     Vector2 Difference = BallCenter - BlockCenter;
+
                     Difference.Normalize();
-                    
+
                     this.direction = Difference;
 
                 }
@@ -176,60 +182,85 @@ namespace Pung
 
         }
 
+        /// <summary>
+        /// Collision on the top of an object. Do NOT use this procedure.
+        /// </summary>
+        /// <param name="target">Object colliding with the ball.</param>
+        /// <remarks>
+        /// This procedure is not used for now but is kept as to be able to give the program ability to simulate a collision on a target
+        /// at any time and without actual collision. If I wanted to simplify the procedure even further I could just change the parameter
+        /// type from GameObject to target and rework the get-group block to work with rectangles instead since a rebound can be done with
+        /// only the target's rectangle.
+        /// 
+        /// DO NOT USE THIS CODE, IT IS CRAP.
+        /// </remarks>
         public void UpCollision(GameObject target)
         {
-                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
-                Group targetGroup = new Group();
-                foreach (Group item in GroupsContainingTarget)
+            // This block retrieve the groups of objects as to be able to execute specific actions depending on which group the 
+            // target is member of.
+            List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+            Group targetGroup = new Group();
+            foreach (Group item in GroupsContainingTarget)
+            {// Iterate through each object in the group that contains target to associate the target with a group.
+                if (item.Contains(target))
                 {
-                    if (item.Contains(target))
-                    {
-                        targetGroup = item; // TODO : That is a FUCKING long way to find out the Target's group. Let's put a variable somewhere.
-                    }
-                }
-
-                switch (targetGroup.GroupName)
-                {
-                    case "Players":
-                        direction *= new Vector2(1, -1);
-                        IncrementSpeed();
-                        break;
-                    case "Collisions":
-                        direction *= new Vector2(1, -1);
-                        break;
+                    targetGroup = item; // TODO : That is a FUCKING long way to find out the Target's group. Let's put a variable somewhere.
                 }
             }
 
+            // Now depending on which group the target is in, will execute specific action.
+            switch (targetGroup.GroupName)
+            {
+                case "Players":
+                    direction *= new Vector2(1, -1);
+                    IncrementSpeed();
+                    break; // Will not work if the target is member of two groups since the break will make the code skip the other cases.
+                case "Collisions":
+                    direction *= new Vector2(1, -1);
+                    break;
+            }
+        }
+        /// <summary>
+        /// Forcing an Up collision on the ball.
+        /// </summary>
         public void UpCollision()
         {
             direction *= new Vector2(1, -1);
             IncrementSpeed();
         }
 
+        /// <summary>
+        /// Collision on the bottom of an object. Do NOT use this procedure.
+        /// </summary>
+        /// <param name="target">Object colliding with the ball.</param>
+        /// <see cref="UpCollision"/>
         public void DownCollision(GameObject target)
         {
-                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
-                Group targetGroup = new Group();
-                foreach (Group item in GroupsContainingTarget)
+            List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+            Group targetGroup = new Group();
+            foreach (Group item in GroupsContainingTarget)
+            {
+                if (item.Contains(target))
                 {
-                    if (item.Contains(target))
-                    {
-                        targetGroup = item;
-                    }
-                }
-
-                switch (targetGroup.GroupName)
-                {
-                    case "Players":
-                        direction *= new Vector2(1, -1);
-                        IncrementSpeed();
-                        break;
-                    case "Collisions":
-                        direction *= new Vector2(1, -1);
-                        break;
+                    targetGroup = item;
                 }
             }
 
+            switch (targetGroup.GroupName)
+            {
+                case "Players":
+                    direction *= new Vector2(1, -1);
+                    IncrementSpeed();
+                    break;
+                case "Collisions":
+                    direction *= new Vector2(1, -1);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Forcing a Down collision on the object.
+        /// </summary>
         public void DownCollision()
         {
             direction *= new Vector2(1, -1);
@@ -237,31 +268,39 @@ namespace Pung
 
         }
 
+        /// <summary>
+        /// Collision on the left of an object. Do NOT use this procedure.
+        /// </summary>
+        /// <param name="target">Object colliding with the ball.</param>
+        /// <see cref="UpCollision"/>
         public void LeftCollision(GameObject target)
         {
-                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
-                Group targetGroup = new Group();
-                foreach (Group item in GroupsContainingTarget)
+            List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+            Group targetGroup = new Group();
+            foreach (Group item in GroupsContainingTarget)
+            {
+                if (item.Contains(target))
                 {
-                    if (item.Contains(target))
-                    {
-                        targetGroup = item; // Works weirdly.
-                    }
-                }
-
-
-                switch (targetGroup.GroupName)
-                {
-                    case "Players":
-                        direction *= new Vector2(-1, 1);
-                        IncrementSpeed();
-                        break;
-                    case "Collisions":
-                        direction *= new Vector2(-1, 1);
-                        break;
+                    targetGroup = item; // Works weirdly.
                 }
             }
 
+
+            switch (targetGroup.GroupName)
+            {
+                case "Players":
+                    direction *= new Vector2(-1, 1);
+                    IncrementSpeed();
+                    break;
+                case "Collisions":
+                    direction *= new Vector2(-1, 1);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Forcing a Left collision on the ball.
+        /// </summary>
         public void Leftcollision()
         {
             direction *= new Vector2(-1, 1);
@@ -269,31 +308,39 @@ namespace Pung
 
         }
 
+        /// <summary>
+        /// Collision on the right of an object. Do NOT use this procedure.
+        /// </summary>
+        /// <param name="target">Object colliding with the ball.</param>
+        /// <see cref="UpCollision"/>
         public void RightCollision(GameObject target)
         {
-                List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
-                Group targetGroup = new Group();
-                foreach (Group item in GroupsContainingTarget)
+            List<Group> GroupsContainingTarget = target.GetGroupsContainingThisGameObject();
+            Group targetGroup = new Group();
+            foreach (Group item in GroupsContainingTarget)
+            {
+                if (item.Contains(target))
                 {
-                    if (item.Contains(target))
-                    {
-                        targetGroup = item;
-                    }
-                }
-
-
-                switch (targetGroup.GroupName)
-                {
-                    case "Players":
-                        direction *= new Vector2(-1, 1);
-                        IncrementSpeed();
-                        break;
-                    case "Collisions":
-                        direction *= new Vector2(-1, 1);
-                        break;
+                    targetGroup = item;
                 }
             }
 
+
+            switch (targetGroup.GroupName)
+            {
+                case "Players":
+                    direction *= new Vector2(-1, 1);
+                    IncrementSpeed();
+                    break;
+                case "Collisions":
+                    direction *= new Vector2(-1, 1);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Forcing a Right collision on the ball.
+        /// </summary>
         public void RightCollision()
         {
             direction *= new Vector2(-1, 1);

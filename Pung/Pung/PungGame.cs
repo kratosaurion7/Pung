@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-
 namespace Pung
 {
     /// <summary>
@@ -17,11 +16,11 @@ namespace Pung
     /// </summary>
     public class PungGame : Microsoft.Xna.Framework.Game
     {
-        // Managers graphiques.
+        // Graphical managers.
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         
-        // Police de charactere.
+        // Fonts
         SpriteFont scoreFont;
 
         // Players
@@ -44,7 +43,7 @@ namespace Pung
 
         // Blocks
         BlockBunch BlockList;
-        const int TIME_UNTIL_BLOCK = 50;
+        const int TIME_UNTIL_BLOCK = 5000;
 
         public PungGame()
         {
@@ -71,13 +70,13 @@ namespace Pung
             // Publish the service, allowing everything to use the spriteBatch
             Services.AddService(typeof(SpriteBatch), spriteBatch);
 
-            // Classes joueurs
+            // Player classes.
             player1 = new Player(this, Pallet.PlayerNumber.PlayerOne);
             player1.Name = "Player 1";
             player2 = new Player(this, Pallet.PlayerNumber.PlayerTwo);
             player2.Name = "Player 2";
 
-            // Entity classes.
+            // Ball classes.
             ball = new Ball(this);
             
             // Collision groups
@@ -101,11 +100,11 @@ namespace Pung
             base.Initialize(); // Goes to LoadContent()
 
             // Placed after general initialisation so the texture is already loaded and its size initialized
-            player1.Pallet.placeInDefaultPosition(Window.ClientBounds);
-            player2.Pallet.placeInDefaultPosition(Window.ClientBounds);
+            player1.Pallet.placeInDefaultPosition();
+            player2.Pallet.placeInDefaultPosition();
 
             // Places the ball in the center position and give it a random angle.
-            ball.placeInDefaultPosition(Window.ClientBounds);
+            ball.placeInDefaultPosition();
             
         }
 
@@ -136,7 +135,7 @@ namespace Pung
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            // Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -149,21 +148,18 @@ namespace Pung
             // Record the current state of the keyboard. 
             currentState = Keyboard.GetState();
 
+            // Check for user input.
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 this.Exit();
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                ball.placeInDefaultPosition(Window.ClientBounds);
-
+                ball.placeInDefaultPosition();
             }
 
+            // Add your update logic here
             
-
-            // TODO: Add your update logic here
-            
-
             // Update the other components of the game
             base.Update(gameTime);
 
@@ -171,16 +167,23 @@ namespace Pung
 
             // Block generation code
             if (Math.Floor(gameTime.TotalGameTime.TotalMilliseconds) % TIME_UNTIL_BLOCK == 0 && gameTime.TotalGameTime.TotalMilliseconds > 0)
-            {
+            {// If enough time has ellapsed the game will pop a new block.
                 Block newBlock = new Block(this);
                 BlockList.addBlock(newBlock);
             }
             
             // Records the current event as past so the program can know what what key was hit during the last update
             previousState = currentState;
-            //GameTimer += gameTime.ElapsedGameTime.Milliseconds;
         }
 
+        /// <summary>
+        /// This will test collisions on all objects that requires collision checking.
+        /// </summary>
+        /// <remarks>
+        /// In the future this could be replaced as an enumeration through each member sharing the ICollidable interface.
+        /// This procedure is not against blocks. Soon the code here will be distributed on each object so it can do
+        /// the work by itself.
+        /// </remarks>
         private void CheckBallCollisions()
         {
             // Check for the ball against the edges of the screen
@@ -198,15 +201,13 @@ namespace Pung
             {
                 // Player 1 scores
                 player1.AddScore();
-                player1.Pallet.DecrementSpeed();
-                ball.placeInDefaultPosition(Window.ClientBounds);
+                ball.placeInDefaultPosition();
             }
             else if (ball.Position.X < 0) // Left of the screen
             {
                 // Player 2 scores
                 player2.AddScore();
-                player2.Pallet.DecrementSpeed();
-                ball.placeInDefaultPosition(Window.ClientBounds);
+                ball.placeInDefaultPosition();
             }
 
             // Check for collisions against the pallets
@@ -218,33 +219,6 @@ namespace Pung
             {
                 ball.RightCollision(player2.Pallet);
             }
-
-            //Check for collisions against blocks
-            //foreach (Block item in collisionGroup)
-            //{
-            //    if (ball.Position.X + ball.ObjectRectangle.Width > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-            //    {
-            //        ball.RightCollision(item);
-            //    }
-            //    // TODO : I'M HERE
-            //    if (ball.Position.X < item.Position.X + item.ObjectRectangle.Width && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-            //    {
-            //        ball.LeftCollision(item);
-            //    }
-
-            //    if (ball.Position.Y + ball.ObjectRectangle.Height > item.Position.X && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-            //    {
-            //        ball.UpCollision(item);
-            //    }
-
-            //    if (ball.Position.Y < item.Position.Y + item.ObjectRectangle.Height && ball.ObjectRectangle.Intersects(item.ObjectRectangle))
-            //    {
-            //        ball.DownCollision(item);
-            //    }
-
-
-
-            //}
         }
 
         /// <summary>
@@ -263,6 +237,9 @@ namespace Pung
             spriteBatch.End();
         }
 
+        /// <summary>
+        /// Draw the scoreboard on the screen.
+        /// </summary>
         private void drawText()
         {
             // Text used in the scoreboard and scores and font fore color.
@@ -279,7 +256,6 @@ namespace Pung
             spriteBatch.DrawString(scoreFont, SCOREBOARD_STRING, scoreboard_Position, SCOREBOARD_COLOR);
             spriteBatch.DrawString(scoreFont, Player1_String, scoreboard_Position + positionOffset, SCOREBOARD_COLOR);
             spriteBatch.DrawString(scoreFont, Player2_String, scoreboard_Position + (positionOffset * 2), SCOREBOARD_COLOR);
-
 
         }
     }
