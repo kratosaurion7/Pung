@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-
 namespace Pung
 {
     /// <summary>
@@ -17,22 +16,25 @@ namespace Pung
     /// </summary>
     public class Block : GameObject
     {
-        /* Random number generator used to determine a random location.
-         * Isn't much good since the generation pattern is always similar.
-         * For size try and reduce PungGame.TIME_UNTIL_BLOCK to 5ms and the blocks will always 
-         * appear in the same 'wave'ish fashion.*/
-        Random randomer = new Random(); 
 
         #region Properties
         // This space has been purposefully left blank. 
         #endregion
 
-        public Block(PungGame game)
+        public Block(PungGame game) 
             : base(game)
         {
-            // Start the block at a random position.
-            position = new Vector2(randomer.Next(Game.Window.ClientBounds.Width), randomer.Next(Game.Window.ClientBounds.Height));
+            // Create a new block without knowledge of the safe zone so it can be will be placed anywhere randomly.
+            position = new Vector2(Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Width),
+                Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Height));
+        }
 
+        public Block(PungGame game, Rectangle spawnZone)
+            : base(game)
+        {
+            // Start the block at a random position within the block spawning zone.
+            position = new Vector2(Utilities.Randomizer.CreateRandom(spawnZone.X, spawnZone.Width),
+                Utilities.Randomizer.CreateRandom(spawnZone.Y, spawnZone.Height));   
         }
 
         /// <summary>

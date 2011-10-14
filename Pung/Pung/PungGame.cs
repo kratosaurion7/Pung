@@ -42,8 +42,8 @@ namespace Pung
         Group playerGroup;
 
         // Blocks
-        BlockBunch BlockList;
-        const int TIME_UNTIL_BLOCK = 5000;
+        BlockManager BlockList;
+        const int TIME_UNTIL_BLOCK = 10000;
 
         public PungGame()
         {
@@ -94,7 +94,7 @@ namespace Pung
             Services.AddService(typeof(GroupList), GameGroups);
 
             // Blocks
-            BlockList = new BlockBunch(this);
+            BlockList = new BlockManager(this);
 
             // Will initialize the basic graphical objects.
             base.Initialize(); // Goes to LoadContent()
@@ -102,6 +102,13 @@ namespace Pung
             // Placed after general initialisation so the texture is already loaded and its size initialized
             player1.Pallet.placeInDefaultPosition();
             player2.Pallet.placeInDefaultPosition();
+
+            /* Define the block safe zone, it's meant to restrict where the blocks can appear so they don't get on top of the pallet
+             * or behind it. */
+            BlockList.BlocksSafeZone = new Rectangle((int)player1.Pallet.Position.X + 1, 0,
+                (int)player2.Pallet.Position.X + (int)player2.Pallet.ObjectRectangle.Width - (int)player1.Pallet.ObjectRectangle.X - BlockList.MaxBlockSize,
+                Window.ClientBounds.Height - BlockList.MaxBlockSize);
+
 
             // Places the ball in the center position and give it a random angle.
             ball.placeInDefaultPosition();
@@ -168,8 +175,9 @@ namespace Pung
             // Block generation code
             if (Math.Floor(gameTime.TotalGameTime.TotalMilliseconds) % TIME_UNTIL_BLOCK == 0 && gameTime.TotalGameTime.TotalMilliseconds > 0)
             {// If enough time has ellapsed the game will pop a new block.
-                Block newBlock = new Block(this);
-                BlockList.addBlock(newBlock);
+
+                BlockList.addBlock(this);
+                
             }
             
             // Records the current event as past so the program can know what what key was hit during the last update

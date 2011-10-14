@@ -159,7 +159,7 @@ namespace Pung
         /// </summary>
         public void CheckCollisions()
         {
-            foreach (Block item in BlockBunch.Blocks)
+            foreach (Block item in BlockManager.Blocks)
             {// Check each block against the ball
                 if (this.objectRectangle.Intersects(item.ObjectRectangle))
                 {// Enters only if both the ball and the block intersects
