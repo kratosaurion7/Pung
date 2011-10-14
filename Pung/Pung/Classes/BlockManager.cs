@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Pung
 {
+
     class BlockManager : GameObject
     {
         // List of all blocks spawned in the game. Available to every object.
@@ -20,7 +21,7 @@ namespace Pung
         // Block constant.
         const int MAX_BLOCK_SIZE = 32;
         const int MIN_BLOCK_SIZE = 4;
-
+        const double TIME_UNTIL_BLOCK_DEATH = 30;
 
         Rectangle blocksSafeZone;
 
@@ -82,6 +83,27 @@ namespace Pung
             // BlockBunch cannot call his Base.Update because it updates the ObjectRectangle using the texture size. Which this object lack.
             // Solution : Make Blockbunch inherits from something else
             //base.Update(gameTime);
+
+            foreach (Block item in blocksList)
+            {
+                item.Update(gameTime);
+            }
+
+            List<Block> blocksToDelete = new List<Block>();
+
+            foreach (Block item in blocksList)
+            {
+                if (item.LivingTime >= TIME_UNTIL_BLOCK_DEATH)
+                {
+                    blocksToDelete.Add(item);
+                }
+            }
+
+            foreach (Block item in blocksToDelete)
+            {
+                blocksList.Remove(item);
+            }
+
         }
 
         public  void LoadContent(ContentManager theContentManager, string theAssetName)

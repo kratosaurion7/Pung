@@ -49,7 +49,7 @@ namespace Pung
             : base(game)
         {            
             position = new Vector2();
-
+            
             spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
 
         }
@@ -102,4 +102,7 @@ namespace Pung
         }
 
     }
+
+
+
 }

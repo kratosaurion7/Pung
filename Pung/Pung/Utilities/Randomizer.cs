@@ -17,6 +17,9 @@ namespace Pung.Utilities
              * that are created in close succession by a call to the default
              * constructor will have identical default seed values and, therefore,
              * will produce identical sets of random numbers.
+             * 
+             * Good info at : 
+             * http://msdn.microsoft.com/en-us/library/h343ddh9.aspx
              */
             int randomNumber = randomNumberMaker.Next(min, max);
 

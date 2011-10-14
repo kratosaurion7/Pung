@@ -17,8 +17,17 @@ namespace Pung
     public class Block : GameObject
     {
 
+        double livingTime;
+
+
         #region Properties
-        // This space has been purposefully left blank. 
+
+        public double LivingTime
+        {
+            get { return livingTime; }
+            set { livingTime = value; }
+        }
+ 
         #endregion
 
         public Block(PungGame game) 
@@ -27,6 +36,8 @@ namespace Pung
             // Create a new block without knowledge of the safe zone so it can be will be placed anywhere randomly.
             position = new Vector2(Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Width),
                 Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Height));
+
+            
         }
 
         public Block(PungGame game, Rectangle spawnZone)
@@ -47,6 +58,8 @@ namespace Pung
         {
             position = startingPosition;
 
+            
+
         }
 
         /// <summary>
@@ -55,7 +68,7 @@ namespace Pung
         /// </summary>
         public override void Initialize()
         {
-
+            livingTime = 0;
             base.Initialize();
         }
 
@@ -65,7 +78,7 @@ namespace Pung
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-
+            livingTime += gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
         }
 
@@ -73,6 +86,9 @@ namespace Pung
         {
 
             base.Draw(gameTime);
+
+            // Record the time when the block was first drawn.
+            
         }
 
         public void LoadContent(ContentManager theContentManager, string theAssetName)
