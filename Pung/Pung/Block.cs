@@ -17,8 +17,9 @@ namespace Pung
     public class Block : GameObject
     {
 
-        double livingTime;
+        private double livingTime;
 
+        private double maxLifeTime = Utilities.Randomizer.CreateRandom(10, 180);
 
         #region Properties
 
@@ -27,7 +28,13 @@ namespace Pung
             get { return livingTime; }
             set { livingTime = value; }
         }
- 
+
+        public double MaxLifeTime
+        {
+            get { return maxLifeTime; }
+            set { maxLifeTime = value; }
+        }
+
         #endregion
 
         public Block(PungGame game) 
@@ -37,7 +44,6 @@ namespace Pung
             position = new Vector2(Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Width),
                 Utilities.Randomizer.CreateRandom(0, Game.Window.ClientBounds.Height));
 
-            
         }
 
         public Block(PungGame game, Rectangle spawnZone)
@@ -57,8 +63,6 @@ namespace Pung
             : base(game)
         {
             position = startingPosition;
-
-            
 
         }
 

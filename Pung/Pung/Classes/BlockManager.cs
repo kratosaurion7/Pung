@@ -21,7 +21,6 @@ namespace Pung
         // Block constant.
         const int MAX_BLOCK_SIZE = 32;
         const int MIN_BLOCK_SIZE = 4;
-        const double TIME_UNTIL_BLOCK_DEATH = 30;
 
         Rectangle blocksSafeZone;
 
@@ -74,7 +73,7 @@ namespace Pung
 
         public override void Initialize()
         {
-
+            
             base.Initialize();
         }
 
@@ -93,7 +92,7 @@ namespace Pung
 
             foreach (Block item in blocksList)
             {
-                if (item.LivingTime >= TIME_UNTIL_BLOCK_DEATH)
+                if (item.LivingTime >= item.MaxLifeTime)
                 {
                     blocksToDelete.Add(item);
                 }
@@ -112,33 +111,46 @@ namespace Pung
 
         }
 
-
+        /// <summary>
+        /// Add a block with a random block size to the game field and place it randomly 
+        /// </summary>
+        /// <param name="game">Reference to the game.</param>
         public void addBlock(PungGame game)
         {
+            // Create a new empty block, only his position is known at start.
             Block newBlock = new Block(game, blocksSafeZone);
 
-            addBlock(newBlock, Utilities.Randomizer.CreateRandom(MIN_BLOCK_SIZE, MAX_BLOCK_SIZE),
+            // Call the overloaded addBlock procedure to generate a texture and affect his objectRectangle
+            addBlock(newBlock,
+                Utilities.Randomizer.CreateRandom(MIN_BLOCK_SIZE, MAX_BLOCK_SIZE),
                 Utilities.Randomizer.CreateRandom(MIN_BLOCK_SIZE, MAX_BLOCK_SIZE),
                 new Color(255, 0, 0));
 
         }
 
         /// <summary>
-        /// Add a block into the game.
+        /// Add an already instanciated block to the game field.
         /// </summary>
         /// <param name="newBlock">Block to be added to the game.</param>
         /// <remarks>
-        /// This procedure should be re-written since the group/grouplist structures 
-        /// will be reworked.
+        /// The new block needs a texture already of the ObjectRectangle property will be null.
+        /// 
+        /// Procedure needs to be re-written due to it's unstableness and lack of current use.
         /// </remarks>
         public void addBlock(Block newBlock)
         {
-
-            addBlock(newBlock, 16, 16, new Color(255, 255, 255));
+            addBlock(newBlock, newBlock.ObjectRectangle.Width, newBlock.ObjectRectangle.Height, new Color(255, 255, 255));
 
         }
 
 
+        /// <summary>
+        /// Procedure to add a block to the Block Manager's list of blocks.
+        /// </summary>
+        /// <param name="newBlock">Instance of a new block.</param>
+        /// <param name="width">Desired width of the block.</param>
+        /// <param name="height">Desired height of the block.</param>
+        /// <param name="blockColor">Color of desired the block's texture.</param>
         public void addBlock(Block newBlock, int width, int height, Color blockColor)
         {
             /* Get the group list service and get the group named Collisions.
@@ -147,6 +159,7 @@ namespace Pung
              */
             GroupList groupList = (GroupList)Game.Services.GetService(typeof(GroupList));
             Group collisionGroup = groupList.GetGroup("Collisions");
+
             newBlock.Texture = Utilities.ColorTexture.Create(Game.GraphicsDevice, width, height, blockColor);
             newBlock.ObjectRectangle = new Rectangle((int)newBlock.Position.X, (int)newBlock.Position.Y, newBlock.Texture.Width, newBlock.Texture.Height);
             blocksList.Add(newBlock);
